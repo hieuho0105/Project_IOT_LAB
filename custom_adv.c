@@ -19,7 +19,7 @@
 #include "custom_adv.h"
 #include "stdio.h"
 
-void fill_adv_packet(CustomAdv_t *pData, uint8_t flags, uint16_t companyID, uint32_t student_id, char *name)
+void fill_adv_packet(CustomAdv_t *pData, uint8_t flags, uint16_t companyID, uint8_t rh_byte1, uint8_t rh_byte2, uint8_t temp_byte1, uint8_t temp_byte2, char *name)
 {
   int n;
 
@@ -32,10 +32,15 @@ void fill_adv_packet(CustomAdv_t *pData, uint8_t flags, uint16_t companyID, uint
   pData->company_LO = companyID & 0xFF;
   pData->company_HI = (companyID >> 8) & 0xFF;
 
-  pData->student_id_3 = student_id & 0xFF;
-  pData->student_id_2 = (student_id >> 8) & 0xFF;
-  pData->student_id_1 = (student_id >> 16) & 0xFF;
-  pData->student_id_0 = (student_id >> 24) & 0xFF;
+  // pData->student_id_3 = student_id & 0xFF;
+  // pData->student_id_2 = (student_id >> 8) & 0xFF;
+  // pData->student_id_1 = (student_id >> 16) & 0xFF;
+  // pData->student_id_0 = (student_id >> 24) & 0xFF;
+
+  pData->rh_byte1 = rh_byte1;
+  pData->rh_byte2 = rh_byte2;
+  pData->temp_byte1 = temp_byte1;
+  pData->temp_byte2 = temp_byte2;
 
   // Name length, excluding null terminator
   n = strlen(name);
@@ -76,14 +81,19 @@ void start_adv(CustomAdv_t *pData, uint8_t advertising_set_handle)
 
 
 
-void update_adv_data(CustomAdv_t *pData, uint8_t advertising_set_handle, uint32_t student_id)
+void update_adv_data(CustomAdv_t *pData, uint8_t advertising_set_handle, uint8_t rh_byte1, uint8_t rh_byte2, uint8_t temp_byte1, uint8_t temp_byte2)
 {
   sl_status_t sc;
   // Update the variable fields in the custom advertising packet
-  pData->student_id_3 = student_id & 0xFF;
-  pData->student_id_2 = (student_id >> 8) & 0xFF;
-  pData->student_id_1 = (student_id >> 16) & 0xFF;
-  pData->student_id_0 = (student_id >> 24) & 0xFF;
+  // pData->student_id_3 = student_id & 0xFF;
+  // pData->student_id_2 = (student_id >> 8) & 0xFF;
+  // pData->student_id_1 = (student_id >> 16) & 0xFF;
+  // pData->student_id_0 = (student_id >> 24) & 0xFF;
+
+  pData->rh_byte1 = rh_byte1;
+  pData->rh_byte2 = rh_byte2;
+  pData->temp_byte1 = temp_byte1;
+  pData->temp_byte2 = temp_byte2;
 
   // Set custom advertising payload 
   sc = sl_bt_legacy_advertiser_set_data(advertising_set_handle, 0, pData->data_size, (const uint8_t *)pData);

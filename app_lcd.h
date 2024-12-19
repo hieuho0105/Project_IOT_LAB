@@ -10,7 +10,7 @@
 
 void memlcd_app_init(void);
 
-void display(int);
+void display(void);
 
 void memlcd_app_process_action(void);
 

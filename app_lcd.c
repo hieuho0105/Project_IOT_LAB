@@ -5,23 +5,83 @@
 #include "dmd.h"
 #include "em_timer.h"
 #include "em_cmu.h"
+#include "dht11.h"
+#include "em_gpio.h"
+#include "app_assert.h"
+#include "app_timer.h"
+#include "app_lcd.h"
 
 #ifndef LCD_MAX_LINES
 #define LCD_MAX_LINES      11
 #endif
 
+
+#define DHT11_PORT gpioPortB
+#define DHT11_PIN  1
 /******************************************************************************/
-/***************************  LOCAL VARIABLES   ******************************/
+/***************************  GLOBAL VARIABLES   ******************************/
 /******************************************************************************/
+uint8_t presence, rh_byte1, rh_byte2, temp_byte1, temp_byte2, checksum;
+extern uint16_t dht11_period;
+
+/******************************************************************************/
+/***************************  LOCAL VARIABLES    ******************************/
+/******************************************************************************/
+
+//This action creates a memory area for our "timer variable".
+static app_timer_t update_timer;
 static GLIB_Context_t glibContext;
-static uint8_t hours = 0, minutes = 0, seconds = 0;  // Giờ, phút, giây
 
 /******************************************************************************/
 /**************************   GLOBAL FUNCTIONS   *****************************/
+
 /******************************************************************************/
+/**************************************************************************//**
+ * Messure humidity and temperature. Update to LCD
+ *****************************************************************************/
+static void update_timer_cb(app_timer_t *timer, void *data)
+{
+  (void)data;
+  (void)timer;
+
+  //update the temperature and humidity
+  DHT11_Start(DHT11_PORT, DHT11_PIN);
+  dht11_data_t dht11_data = DHT11_Read(DHT11_PORT, DHT11_PIN);
+
+  rh_byte1 = dht11_data.rh_byte1;
+  rh_byte2 = dht11_data.rh_byte2;
+  temp_byte1 = dht11_data.temp_byte1;
+  temp_byte2 = dht11_data.temp_byte2;
+  checksum = dht11_data.checksum;
+
+  // Update the display
+  display();
+}
+
 
 /***************************************************************************//**
- * Khởi tạo ứng dụng
+ * Update
+ ******************************************************************************/
+void display(void)
+{
+  char temp_string[16];
+  char hum_string[16];
+
+  snprintf(temp_string, 16, "Temp: %d.%d*C", temp_byte1, temp_byte2);
+  snprintf(hum_string, 16, "Hum: %d.%d %%", rh_byte1, rh_byte2);
+
+  // Draw the string on the LCD
+  GLIB_clear(&glibContext); // Clear the screen
+  GLIB_drawStringOnLine(&glibContext, "Deadline Team", 0, GLIB_ALIGN_CENTER, 5, 5, true);
+  GLIB_drawStringOnLine(&glibContext, temp_string, 2, GLIB_ALIGN_CENTER, 5, 5, true);
+  GLIB_drawStringOnLine(&glibContext, hum_string, 4, GLIB_ALIGN_CENTER, 5, 5, true);
+
+  // Update the display
+  DMD_updateDisplay();
+}
+
+/***************************************************************************//**
+ * Initialize the application.
  ******************************************************************************/
 void memlcd_app_init(void)
 {
@@ -48,79 +108,22 @@ void memlcd_app_init(void)
   // Use Narrow font
   GLIB_setFont(&glibContext, (GLIB_Font_t *)&GLIB_FontNarrow6x8);
 
-  // Start the timer to update the clock every second
-  setup_timer();
+  // Update the display for the first time
+  display();
 
-  // Cập nhật lần đầu tiên
-  update_time_display();
+  sl_status_t sc;
+  // Init IRQ update data.
+  sc = app_timer_start(&update_timer,
+                             dht11_period,              //ms
+                             update_timer_cb,
+                             NULL,
+                             true);
+  app_assert_status(sc);
 }
 
-/***************************************************************************//**
- * Cập nhật giờ và hiển thị lên LCD
- ******************************************************************************/
-void update_time_display(void)
-{
-  char time_string[9];  // Chứa chuỗi giờ:phút:giây (hh:mm:ss)
-
-  // Định dạng giờ:phút:giây
-  snprintf(time_string, sizeof(time_string), "%02d:%02d:%02d", hours, minutes, seconds);
-
-  // Vẽ chuỗi lên LCD
-  GLIB_clear(&glibContext); // Xóa màn hình trước khi vẽ
-  GLIB_drawStringOnLine(&glibContext, "Ho Cong Hieu", 0, GLIB_ALIGN_CENTER, 5, 5, true);
-  GLIB_drawStringOnLine(&glibContext, time_string, 2, GLIB_ALIGN_CENTER, 5, 5, true);
-
-  // Cập nhật màn hình LCD
-  DMD_updateDisplay();
-}
-
-/***************************************************************************//**
- * Thiết lập Timer để cập nhật đồng hồ mỗi giây
- ******************************************************************************/
-void setup_timer(void)
-{
-  CMU_ClockEnable(cmuClock_TIMER0, true);  // Kích hoạt bộ đếm Timer0
-
-  TIMER_Init_TypeDef timer_init = TIMER_INIT_DEFAULT;
-  timer_init.prescale = timerPrescale1024;
-  timer_init.enable = true;
-  TIMER_Init(TIMER0, &timer_init);
-
-  TIMER_TopSet(TIMER0, 78125);
-  TIMER_IntEnable(TIMER0, TIMER_IF_OF);
-
-  NVIC_EnableIRQ(TIMER0_IRQn);  // Kích hoạt ngắt Timer0
-}
-
-/***************************************************************************//**
- * Xử lý sự kiện ngắt từ Timer
- ******************************************************************************/
-void TIMER0_IRQHandler(void)
-{
-  // Xóa cờ ngắt
-  TIMER_IntClear(TIMER0, TIMER_IF_OF);
-
-  // Cập nhật giây
-  seconds++;
-  if (seconds >= 60) {
-    seconds = 0;
-    minutes++;
-    if (minutes >= 60) {
-      minutes = 0;
-      hours++;
-      if (hours >= 24) {
-        hours = 0;
-      }
-    }
-  }
-
-  // Cập nhật màn hình LCD
-  update_time_display();
-}
 
 /***************************************************************************//**
  * Ticking function.
- * Chức năng này có thể sử dụng nếu bạn cần xử lý thêm các tác vụ khác.
  ******************************************************************************/
 void memlcd_app_process_action(void)
 {

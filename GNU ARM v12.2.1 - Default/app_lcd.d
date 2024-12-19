@@ -64,7 +64,32 @@ app_lcd.o: ../app_lcd.c \
  c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\emlib\inc\em_gpio.h \
  c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\common\inc\sl_common.h \
  c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\common\inc\sl_assert.h \
- c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\emlib\inc\sli_em_cmu.h
+ c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\emlib\inc\sli_em_cmu.h \
+ ../dht11.h \
+ c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\emlib\inc\em_gpio.h \
+ c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\app\common\util\app_assert\app_assert.h \
+ C:\HK7\THIOT\LAB\DoAn\config/app_assert_config.h \
+ c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\app\common\util\app_log\app_log.h \
+ c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\service\iostream\inc\sl_iostream.h \
+ C:\HK7\THIOT\LAB\DoAn\autogen/sl_iostream_handles.h \
+ C:\HK7\THIOT\LAB\DoAn\autogen/sl_iostream_init_usart_instances.h \
+ C:\HK7\THIOT\LAB\DoAn\autogen/sl_component_catalog.h \
+ c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\service\power_manager\inc\sl_power_manager.h \
+ C:\HK7\THIOT\LAB\DoAn\config/sl_power_manager_config.h \
+ c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\common\inc\sl_slist.h \
+ c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\service\sleeptimer\inc\sl_sleeptimer.h \
+ c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\common\inc\sl_code_classification.h \
+ c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\service\iostream\inc\sl_iostream_uart.h \
+ c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\service\iostream\inc\sl_iostream.h \
+ c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\emdrv\dmadrv\inc\dmadrv.h \
+ c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\emdrv\common\inc\ecode.h \
+ c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\emdrv\dmadrv\inc\s2_signals\dmadrv_signals.h \
+ c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\emlib\inc\em_ldma.h \
+ C:\HK7\THIOT\LAB\DoAn\config/dmadrv_config.h \
+ C:\HK7\THIOT\LAB\DoAn\config/app_log_config.h \
+ c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\app\common\util\app_timer\app_timer.h \
+ c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\app\common\util\app_timer\bm\app_timer_types.h \
+ ../app_lcd.h
 c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\common\toolchain\inc\sl_gcc_preinclude.h:
 c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\hardware\board\inc\sl_board_control.h:
 c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\common\inc\sl_status.h:
@@ -135,3 +160,28 @@ c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\emlib\inc\em_gpio.h
 c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\common\inc\sl_common.h:
 c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\common\inc\sl_assert.h:
 c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\emlib\inc\sli_em_cmu.h:
+../dht11.h:
+c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\emlib\inc\em_gpio.h:
+c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\app\common\util\app_assert\app_assert.h:
+C:\HK7\THIOT\LAB\DoAn\config/app_assert_config.h:
+c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\app\common\util\app_log\app_log.h:
+c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\service\iostream\inc\sl_iostream.h:
+C:\HK7\THIOT\LAB\DoAn\autogen/sl_iostream_handles.h:
+C:\HK7\THIOT\LAB\DoAn\autogen/sl_iostream_init_usart_instances.h:
+C:\HK7\THIOT\LAB\DoAn\autogen/sl_component_catalog.h:
+c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\service\power_manager\inc\sl_power_manager.h:
+C:\HK7\THIOT\LAB\DoAn\config/sl_power_manager_config.h:
+c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\common\inc\sl_slist.h:
+c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\service\sleeptimer\inc\sl_sleeptimer.h:
+c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\common\inc\sl_code_classification.h:
+c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\service\iostream\inc\sl_iostream_uart.h:
+c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\service\iostream\inc\sl_iostream.h:
+c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\emdrv\dmadrv\inc\dmadrv.h:
+c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\emdrv\common\inc\ecode.h:
+c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\emdrv\dmadrv\inc\s2_signals\dmadrv_signals.h:
+c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\platform\emlib\inc\em_ldma.h:
+C:\HK7\THIOT\LAB\DoAn\config/dmadrv_config.h:
+C:\HK7\THIOT\LAB\DoAn\config/app_log_config.h:
+c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\app\common\util\app_timer\app_timer.h:
+c:\users\hocon\simplicitystudio\sdks\simplicity_sdk\app\common\util\app_timer\bm\app_timer_types.h:
+../app_lcd.h:

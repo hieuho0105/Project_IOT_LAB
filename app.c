@@ -36,15 +36,21 @@
 #include "custom_adv.h"
 #include "app_timer.h"
 
+/******************************************************************************/
+/***************************  GLOBAL VARIABLES   ******************************/
+/******************************************************************************/
+extern uint8_t rh_byte1, rh_byte2, temp_byte1, temp_byte2;
+extern uint16_t adv_period;
 CustomAdv_t sData; // Our custom advertising data stored here
 
+/******************************************************************************/
+/***************************  LOCAL VARIABLES   ******************************/
+/******************************************************************************/
 //This action creates a memory area for our "timer variable".
 static app_timer_t update_timer;
 
 // The advertising set handle allocated from Bluetooth stack.
 static uint8_t advertising_set_handle = 0xff;
-
- uint32_t Student_ID     = 0x20211234;
 
 /**************************************************************************//**
  * Application Init.
@@ -54,9 +60,8 @@ static void update_timer_cb(app_timer_t *timer, void *data)
   (void)data;
   (void)timer;
   //You can update other data in this void
-   Student_ID = 0x20211234;
-   update_adv_data(&sData, advertising_set_handle, Student_ID);
-   app_log("Student_ID: %08X\r\n", (unsigned int) Student_ID);
+   update_adv_data(&sData, advertising_set_handle, rh_byte1, rh_byte2, temp_byte1, temp_byte2);
+   app_log("Updated advertising data\r\n");
 }
 
 SL_WEAK void app_init(void)
@@ -64,7 +69,7 @@ SL_WEAK void app_init(void)
   sl_status_t sc;
   // Init IRQ update data.
   sc = app_timer_start(&update_timer,
-                             2*1000,              //ms
+                             adv_period,              //ms
                              update_timer_cb,
                              NULL,
                              true);
@@ -141,7 +146,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
       app_assert_status(sc);
 
       //Add data to Adv packet
-      fill_adv_packet(&sData, FLAG, COMPANY_ID, Student_ID, "CustomADV");
+      fill_adv_packet(&sData, FLAG, COMPANY_ID, rh_byte1, rh_byte2, temp_byte1, temp_byte2, (char *)"CustomADV");
       app_log("fill_adv_packet completed\r\n");
 
       //Strart advertise

@@ -738,7 +738,7 @@
 		<link>
 			<name>simplicity_sdk_2024.6.2/platform/emdrv/dmadrv/src/dmadrv.c</name>
 			<type>1</type>
-			<locationURI>STUDIO_SDK_LOC/platform/emdrv/dmadrv/src/dmadrv.c</locationURI>
+			<location>C:/Users/hocon/SimplicityStudio/SDKs/simplicity_sdk/platform/emdrv/dmadrv/src/dmadrv.c</location>
 		</link>
 		<link>
 			<name>simplicity_sdk_2024.6.2/platform/emdrv/nvm3/inc/nvm3.h</name>

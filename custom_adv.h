@@ -29,10 +29,10 @@ typedef struct
   uint8_t company_HI;
 
   //Data for Manufacturer specific data
-  uint8_t student_id_0;
-  uint8_t student_id_1;
-  uint8_t student_id_2;
-  uint8_t student_id_3;
+  uint8_t rh_byte1;
+  uint8_t rh_byte2;
+  uint8_t temp_byte1;
+  uint8_t temp_byte2;
 
   // length of the name AD element is variable, adding it last to keep things simple
   uint8_t len_name;
@@ -46,9 +46,11 @@ typedef struct
   uint8_t data_size; // Actual length of advertising data
 } CustomAdv_t;
 
-void fill_adv_packet(CustomAdv_t *pData, uint8_t flags, uint16_t companyID, uint32_t student_id,char *name);
+void fill_adv_packet(CustomAdv_t *pData, uint8_t flags, uint16_t companyID, 
+                    uint8_t rh_byte1, uint8_t rh_byte2, uint8_t temp_byte1, uint8_t temp_byte2,char *name);
 void start_adv(CustomAdv_t *pData, uint8_t advertising_set_handle);
-void update_adv_data(CustomAdv_t *pData, uint8_t advertising_set_handle, uint32_t student_id);
+void update_adv_data(CustomAdv_t *pData, uint8_t advertising_set_handle, 
+                    uint8_t rh_byte1, uint8_t rh_byte2, uint8_t temp_byte1, uint8_t temp_byte2);
 #ifdef __cplusplus
 }
 #endif
