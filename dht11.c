@@ -20,7 +20,7 @@
 
  void Set_Pin_Input(GPIO_Port_TypeDef port, unsigned int pin) {
   CMU_ClockEnable(cmuClock_GPIO, true);
-  GPIO_PinModeSet(port, pin, gpioModeInputPullFilter, 1);
+  GPIO_PinModeSet(port, pin, gpioModeInput, 1);
 }
 
 
@@ -55,17 +55,19 @@ uint8_t DHT11_Check_Response(GPIO_Port_TypeDef dht11_port, unsigned int dht11_pi
 }
 
 uint8_t DHT11_Read_Byte(GPIO_Port_TypeDef dht11_port, unsigned int dht11_pin) {
-  uint8_t i = 0;
+  uint8_t i = 0, timeout = 0;
   for (uint8_t j = 0; j < 8; j++) {
       while (!GPIO_PinInGet(dht11_port, dht11_pin));
       sl_udelay_wait(40);
 
-      if (!GPIO_PinInGet(dht11_port, dht11_pin))
-        i &= ~(1 << (7 - j)); 
-      else
-        i |= 1 << (7 - j);
+      if (GPIO_PinInGet(dht11_port, dht11_pin))
+         i |= 1 << (7 - j);
 
-      while (GPIO_PinInGet(dht11_port, dht11_pin)); // wait for the pin go to low
+
+      while (GPIO_PinInGet(dht11_port, dht11_pin) == 1 && timeout < 60) { // wait for the pin go to low
+          timeout++;
+          sl_udelay_wait(1);
+      }
   }
 
   return i;
@@ -74,7 +76,13 @@ uint8_t DHT11_Read_Byte(GPIO_Port_TypeDef dht11_port, unsigned int dht11_pin) {
 dht11_data_t DHT11_Read(GPIO_Port_TypeDef dht11_port, unsigned int dht11_pin) {
   
   dht11_data_t dht11_data;
+  dht11_data.rh_byte1 = 0;
+  dht11_data.rh_byte2 = 0;
+  dht11_data.temp_byte1 = 0;
+  dht11_data.temp_byte2 = 0;
+  dht11_data.checksum = 0;
 
+  DHT11_Start(dht11_port, dht11_pin);
   uint8_t presence = DHT11_Check_Response(dht11_port, dht11_pin);
 
   if (presence == 1) {

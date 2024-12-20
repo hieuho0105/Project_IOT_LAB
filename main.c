@@ -27,7 +27,7 @@ Mô tả chi tiết:
 hiển thị trên LCD bao gồm: Giá trị nhiệt độ, độ ẩm và chu kì đọc cảm biến.
 3. EFR32xG21 sử dụng BLE để quảng ra môi trường xung quanh. Gói tin quảng bá
 bao gồm: Tên thiết bị, giá trị nhiệt độ và độ ẩm.
- 
+
 */
 #include "sl_component_catalog.h"
 #include "sl_system_init.h"
@@ -139,7 +139,7 @@ int main(void)
   sl_system_kernel_start();
 #else // SL_CATALOG_KERNEL_PRESENT
 
-  //uint8_t buffer;
+  uint8_t buffer;
 
   // Initialize GPIO and USART0
   initGPIO();
@@ -154,8 +154,8 @@ int main(void)
     app_process_action();
 
   // Zero out buffer
-//    buffer = 0;
-//   // Receive BUFLEN characters unless a new line is received first
+    buffer = 0;
+   // Receive BUFLEN characters unless a new line is received first
 //   do
 //   {
 //     // Wait for a character
@@ -186,7 +186,7 @@ int main(void)
 //        break;
 //   }
 
-    
+
 
 #if defined(SL_CATALOG_POWER_MANAGER_PRESENT)
     // Let the CPU go to sleep if the system allows it.

@@ -42,7 +42,8 @@
 extern uint8_t rh_byte1, rh_byte2, temp_byte1, temp_byte2;
 extern uint16_t adv_period;
 CustomAdv_t sData; // Our custom advertising data stored here
-
+static uint16_t temperature;
+static uint16_t humidity;
 /******************************************************************************/
 /***************************  LOCAL VARIABLES   ******************************/
 /******************************************************************************/
@@ -55,132 +56,92 @@ static uint8_t advertising_set_handle = 0xff;
 /**************************************************************************//**
  * Application Init.
  *****************************************************************************/
-static void update_timer_cb(app_timer_t *timer, void *data)
+void adv_update_timer_cb(app_timer_t *timer, void *data)
 {
   (void)data;
   (void)timer;
   //You can update other data in this void
-   update_adv_data(&sData, advertising_set_handle, rh_byte1, rh_byte2, temp_byte1, temp_byte2);
-   app_log("Updated advertising data\r\n");
+  temperature = (temp_byte1 * 10) + temp_byte2; // Ví dụ: 28.8 -> 0288
+  humidity = (rh_byte1 * 10) + rh_byte2;     // Ví dụ: 80.1 -> 0801
+  // Log thông tin
+  app_log("Updating advertisement: Temp = %d.%1d, Hum = %d.%1d\r\n",
+          temp_byte1, temp_byte2, rh_byte1, rh_byte2);
+
+  // Cập nhật dữ liệu quảng bá
+  update_adv_data(&sData, advertising_set_handle, temperature, humidity);
 }
 
+/**************************************************************************//**
+ * Application Init.
+ *****************************************************************************/
 SL_WEAK void app_init(void)
 {
   sl_status_t sc;
-  // Init IRQ update data.
+
+  // Khởi tạo timer để cập nhật dữ liệu quảng bá mỗi 5 giây
   sc = app_timer_start(&update_timer,
-                             adv_period,              //ms
-                             update_timer_cb,
-                             NULL,
-                             true);
+                       1000, // 5 giây (ms)
+                       adv_update_timer_cb,
+                       NULL,
+                       true);
   app_assert_status(sc);
 }
 
 /**************************************************************************//**
- * Application Process Action.
- *****************************************************************************/
-SL_WEAK void app_process_action(void)
-{
-  /////////////////////////////////////////////////////////////////////////////
-  // Put your additional application code here!                              //
-  // This is called infinitely.                                              //
-  // Do not call blocking functions from here!                               //
-  /////////////////////////////////////////////////////////////////////////////
-}
-
-/**************************************************************************//**
- * Bluetooth stack event handler.
- * This overrides the dummy weak implementation.
- *
- * @param[in] evt Event coming from the Bluetooth stack.
+ * Xử lý sự kiện từ BLE stack.
  *****************************************************************************/
 void sl_bt_on_event(sl_bt_msg_t *evt)
 {
   sl_status_t sc;
-  bd_addr address;
-  uint8_t address_type;
-  uint8_t system_id[8];
 
   switch (SL_BT_MSG_ID(evt->header)) {
-    // -------------------------------
-    // This event indicates the device has started and the radio is ready.
-    // Do not call any stack command before receiving this boot event!
     case sl_bt_evt_system_boot_id:
+      app_log("System booted\r\n");
 
-      // Extract unique ID from BT Address.
-      sc = sl_bt_system_get_identity_address(&address, &address_type);
-      app_assert_status(sc);
-
-      // Pad and reverse unique ID to get System ID.
-      system_id[0] = address.addr[5];
-      system_id[1] = address.addr[4];
-      system_id[2] = address.addr[3];
-      system_id[3] = 0xFF;
-      system_id[4] = 0xFE;
-      system_id[5] = address.addr[2];
-      system_id[6] = address.addr[1];
-      system_id[7] = address.addr[0];
-
-      sc = sl_bt_gatt_server_write_attribute_value(gattdb_system_id,
-                                                   0,
-                                                   sizeof(system_id),
-                                                   system_id);
-      app_assert_status(sc);
-
-
-      // Create an advertising set.
+      // Tạo handle quảng bá
       sc = sl_bt_advertiser_create_set(&advertising_set_handle);
       app_assert_status(sc);
 
-      // Set advertising interval to 1s.
+      // Thiết lập interval quảng bá
       sc = sl_bt_advertiser_set_timing(
-        advertising_set_handle,
-        1600, // min. adv. interval (milliseconds * 1.6)
-        1600, // max. adv. interval (milliseconds * 1.6)
-        0,   // adv. duration
-        0);  // max. num. adv. events
+          advertising_set_handle,
+          160, // Min interval (100 ms)
+          160, // Max interval (100 ms)
+          0,   // Thời gian quảng bá (0 = vô hạn)
+          0);  // Số sự kiện quảng bá (0 = vô hạn)
       app_assert_status(sc);
 
-      // Setting channel
-      sl_bt_advertiser_set_channel_map(advertising_set_handle, 7);
+      // Thiết lập kênh quảng bá
+      sc = sl_bt_advertiser_set_channel_map(advertising_set_handle, 7);
       app_assert_status(sc);
 
-      //Add data to Adv packet
-      fill_adv_packet(&sData, FLAG, COMPANY_ID, rh_byte1, rh_byte2, temp_byte1, temp_byte2, (char *)"CustomADV");
+      // Tạo gói quảng bá ban đầu
+      fill_adv_packet(&sData, FLAG, COMPANY_ID, temperature, humidity, "DEADLINE");
       app_log("fill_adv_packet completed\r\n");
 
-      //Strart advertise
+      // Bắt đầu quảng bá
       start_adv(&sData, advertising_set_handle);
-      app_log("Started advertising\r\n");
- 
+      app_log("Started advertising with default data\r\n");
       break;
 
-    // -------------------------------
-    // This event indicates that a new connection was opened.
     case sl_bt_evt_connection_opened_id:
+      app_log("Connection opened\r\n");
       break;
 
-    // -------------------------------
-    // This event indicates that a connection was closed.
     case sl_bt_evt_connection_closed_id:
-      // Generate data for advertising
-      sc = sl_bt_legacy_advertiser_generate_data(advertising_set_handle,
-                                                 sl_bt_advertiser_general_discoverable);
-      app_assert_status(sc);
-
-      // Restart advertising after client has disconnected.
+      // Restart quảng bá sau khi ngắt kết nối
       sc = sl_bt_legacy_advertiser_start(advertising_set_handle,
                                          sl_bt_advertiser_connectable_scannable);
       app_assert_status(sc);
+
+      app_log("Connection closed, restarted advertising\r\n");
       break;
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Add additional event handlers here as your application requires!      //
-    ///////////////////////////////////////////////////////////////////////////
-
-    // -------------------------------
-    // Default event handler.
     default:
       break;
   }
+}
+
+void app_process_action() {
+
 }

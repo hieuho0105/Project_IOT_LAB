@@ -10,47 +10,33 @@ extern "C" {
 
 #define NAME_MAX_LENGTH 14
 
- //define for packet
+// Define for packet
 #define FLAG  0x06
 #define COMPANY_ID  0x02FF
 
-typedef struct
-{
-  //3 bytes for Flag type
-  uint8_t len_flags;
-  uint8_t type_flags;
-  uint8_t val_flags;
+  typedef struct
+  {
+    uint8_t len_flags;
+    uint8_t type_flags;
+    uint8_t val_flags;
 
-  //Then use type for Manufacturer Specific Data
-  uint8_t len_manuf;
-  uint8_t type_manuf;
-  // First two bytes must contain the manufacturer ID (little-endian order)
-  uint8_t company_LO;
-  uint8_t company_HI;
+    uint8_t len_manuf;
+    uint8_t type_manuf;
+    uint8_t company_LO;
+    uint8_t company_HI;
+    uint8_t payload[6];
 
-  //Data for Manufacturer specific data
-  uint8_t rh_byte1;
-  uint8_t rh_byte2;
-  uint8_t temp_byte1;
-  uint8_t temp_byte2;
+    uint8_t len_name;
+    uint8_t type_name;
+    char name[NAME_MAX_LENGTH];
 
-  // length of the name AD element is variable, adding it last to keep things simple
-  uint8_t len_name;
-  uint8_t type_name;
+    uint8_t data_size;
+  } CustomAdv_t;
 
-  // NAME_MAX_LENGTH must be sized so that total length of data does not exceed 31 bytes
-  char name[NAME_MAX_LENGTH];
-
-  // These values are NOT included in the actual advertising payload, just for bookkeeping
-  char dummy;        // Space for null terminator
-  uint8_t data_size; // Actual length of advertising data
-} CustomAdv_t;
-
-void fill_adv_packet(CustomAdv_t *pData, uint8_t flags, uint16_t companyID, 
-                    uint8_t rh_byte1, uint8_t rh_byte2, uint8_t temp_byte1, uint8_t temp_byte2,char *name);
+void fill_adv_packet(CustomAdv_t *pData, uint8_t flags, uint16_t companyID, uint16_t temperature, uint16_t humidity, char *name);
+void update_adv_data(CustomAdv_t *pData, uint8_t advertising_set_handle, uint16_t temperature, uint16_t humidity);
 void start_adv(CustomAdv_t *pData, uint8_t advertising_set_handle);
-void update_adv_data(CustomAdv_t *pData, uint8_t advertising_set_handle, 
-                    uint8_t rh_byte1, uint8_t rh_byte2, uint8_t temp_byte1, uint8_t temp_byte2);
+
 #ifdef __cplusplus
 }
 #endif

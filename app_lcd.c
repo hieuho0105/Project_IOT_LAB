@@ -39,13 +39,13 @@ static GLIB_Context_t glibContext;
 /**************************************************************************//**
  * Messure humidity and temperature. Update to LCD
  *****************************************************************************/
-static void update_timer_cb(app_timer_t *timer, void *data)
+void lcd_update_timer_cb(app_timer_t *timer, void *data)
 {
   (void)data;
   (void)timer;
 
   //update the temperature and humidity
-  DHT11_Start(DHT11_PORT, DHT11_PIN);
+
   dht11_data_t dht11_data = DHT11_Read(DHT11_PORT, DHT11_PIN);
 
   rh_byte1 = dht11_data.rh_byte1;
@@ -66,15 +66,21 @@ void display(void)
 {
   char temp_string[16];
   char hum_string[16];
-
+  char dht11_period_string[16];
+  char count_string[5];
+  static int count = 0;
+  count++;
   snprintf(temp_string, 16, "Temp: %d.%d*C", temp_byte1, temp_byte2);
   snprintf(hum_string, 16, "Hum: %d.%d %%", rh_byte1, rh_byte2);
-
+  snprintf(dht11_period_string, 16, "Period: %d ms",dht11_period);
+  snprintf(count_string, 5, "%d",count);
   // Draw the string on the LCD
   GLIB_clear(&glibContext); // Clear the screen
   GLIB_drawStringOnLine(&glibContext, "Deadline Team", 0, GLIB_ALIGN_CENTER, 5, 5, true);
   GLIB_drawStringOnLine(&glibContext, temp_string, 2, GLIB_ALIGN_CENTER, 5, 5, true);
   GLIB_drawStringOnLine(&glibContext, hum_string, 4, GLIB_ALIGN_CENTER, 5, 5, true);
+  GLIB_drawStringOnLine(&glibContext, dht11_period_string, 6, GLIB_ALIGN_CENTER, 5, 5, true);
+  GLIB_drawStringOnLine(&glibContext, count_string, 8, GLIB_ALIGN_CENTER, 5, 5, true);
 
   // Update the display
   DMD_updateDisplay();
@@ -94,6 +100,7 @@ void memlcd_app_init(void)
   // Initialize the DMD support for memory LCD display
   status = DMD_init(0);
   EFM_ASSERT(status == DMD_OK);
+
 
   // Initialize the GLIB context
   status = GLIB_contextInit(&glibContext);
@@ -115,7 +122,7 @@ void memlcd_app_init(void)
   // Init IRQ update data.
   sc = app_timer_start(&update_timer,
                              dht11_period,              //ms
-                             update_timer_cb,
+                             lcd_update_timer_cb,
                              NULL,
                              true);
   app_assert_status(sc);
