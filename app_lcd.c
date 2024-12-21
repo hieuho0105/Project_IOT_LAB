@@ -23,13 +23,13 @@
 /******************************************************************************/
 uint8_t presence, rh_byte1, rh_byte2, temp_byte1, temp_byte2, checksum;
 extern uint16_t dht11_period;
-
+//This action creates a memory area for our "timer variable".
+app_timer_t lcd_update_timer;
 /******************************************************************************/
 /***************************  LOCAL VARIABLES    ******************************/
 /******************************************************************************/
 
-//This action creates a memory area for our "timer variable".
-static app_timer_t update_timer;
+
 static GLIB_Context_t glibContext;
 
 /******************************************************************************/
@@ -101,7 +101,6 @@ void memlcd_app_init(void)
   status = DMD_init(0);
   EFM_ASSERT(status == DMD_OK);
 
-
   // Initialize the GLIB context
   status = GLIB_contextInit(&glibContext);
   EFM_ASSERT(status == GLIB_OK);
@@ -120,7 +119,7 @@ void memlcd_app_init(void)
 
   sl_status_t sc;
   // Init IRQ update data.
-  sc = app_timer_start(&update_timer,
+  sc = app_timer_start(&lcd_update_timer,
                              dht11_period,              //ms
                              lcd_update_timer_cb,
                              NULL,

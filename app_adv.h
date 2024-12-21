@@ -28,17 +28,20 @@
  *
  ******************************************************************************/
 
-#ifndef APP_H
-#define APP_H
+#ifndef APP_ADV_H
+#define APP_ADV_H
+
+#include "app_timer.h"
 
 /**************************************************************************//**
  * Application Init.
  *****************************************************************************/
-void app_init(void);
+void adv_app_init(void);
 
 /**************************************************************************//**
  * Application Process Action.
  *****************************************************************************/
 void app_process_action(void);
 
-#endif // APP_H
+void adv_update_timer_cb(app_timer_t *timer, void *data);
+#endif // APP_ADV_H

@@ -33,6 +33,7 @@ extern "C" {
     uint8_t data_size;
   } CustomAdv_t;
 
+
 void fill_adv_packet(CustomAdv_t *pData, uint8_t flags, uint16_t companyID, uint16_t temperature, uint16_t humidity, char *name);
 void update_adv_data(CustomAdv_t *pData, uint8_t advertising_set_handle, uint16_t temperature, uint16_t humidity);
 void start_adv(CustomAdv_t *pData, uint8_t advertising_set_handle);

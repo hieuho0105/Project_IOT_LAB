@@ -27,11 +27,11 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
+#include <app_adv.h>
 #include "em_common.h"
 #include "app_assert.h"
 #include "sl_bluetooth.h"
 #include "gatt_db.h"
-#include "app.h"
 #include "app_log.h"
 #include "custom_adv.h"
 #include "app_timer.h"
@@ -48,10 +48,10 @@ static uint16_t humidity;
 /***************************  LOCAL VARIABLES   ******************************/
 /******************************************************************************/
 //This action creates a memory area for our "timer variable".
-static app_timer_t update_timer;
+app_timer_t adv_update_timer;
 
 // The advertising set handle allocated from Bluetooth stack.
-static uint8_t advertising_set_handle = 0xff;
+uint8_t advertising_set_handle = 0xff;
 
 /**************************************************************************//**
  * Application Init.
@@ -64,8 +64,8 @@ void adv_update_timer_cb(app_timer_t *timer, void *data)
   temperature = (temp_byte1 * 10) + temp_byte2; // Ví dụ: 28.8 -> 0288
   humidity = (rh_byte1 * 10) + rh_byte2;     // Ví dụ: 80.1 -> 0801
   // Log thông tin
-  app_log("Updating advertisement: Temp = %d.%1d, Hum = %d.%1d\r\n",
-          temp_byte1, temp_byte2, rh_byte1, rh_byte2);
+  //app_log("Updating advertisement: Temp = %d.%1d, Hum = %d.%1d\r\n",
+  //        temp_byte1, temp_byte2, rh_byte1, rh_byte2);
 
   // Cập nhật dữ liệu quảng bá
   update_adv_data(&sData, advertising_set_handle, temperature, humidity);
@@ -74,13 +74,13 @@ void adv_update_timer_cb(app_timer_t *timer, void *data)
 /**************************************************************************//**
  * Application Init.
  *****************************************************************************/
-SL_WEAK void app_init(void)
+SL_WEAK void adv_app_init(void)
 {
   sl_status_t sc;
 
   // Khởi tạo timer để cập nhật dữ liệu quảng bá mỗi 5 giây
-  sc = app_timer_start(&update_timer,
-                       1000, // 5 giây (ms)
+  sc = app_timer_start(&adv_update_timer,
+                       adv_period, // 1000 (ms)
                        adv_update_timer_cb,
                        NULL,
                        true);
@@ -105,8 +105,8 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
       // Thiết lập interval quảng bá
       sc = sl_bt_advertiser_set_timing(
           advertising_set_handle,
-          160, // Min interval (100 ms)
-          160, // Max interval (100 ms)
+          adv_period*1.6, // Min interval (1000 ms)
+          adv_period*1.6, // Max interval (1000 ms)
           0,   // Thời gian quảng bá (0 = vô hạn)
           0);  // Số sự kiện quảng bá (0 = vô hạn)
       app_assert_status(sc);
@@ -117,15 +117,15 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
 
       // Tạo gói quảng bá ban đầu
       fill_adv_packet(&sData, FLAG, COMPANY_ID, temperature, humidity, "DEADLINE");
-      app_log("fill_adv_packet completed\r\n");
+      //app_log("fill_adv_packet completed\r\n");
 
       // Bắt đầu quảng bá
       start_adv(&sData, advertising_set_handle);
-      app_log("Started advertising with default data\r\n");
+      //app_log("Started advertising with default data\r\n");
       break;
 
     case sl_bt_evt_connection_opened_id:
-      app_log("Connection opened\r\n");
+      //app_log("Connection opened\r\n");
       break;
 
     case sl_bt_evt_connection_closed_id:
@@ -134,7 +134,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
                                          sl_bt_advertiser_connectable_scannable);
       app_assert_status(sc);
 
-      app_log("Connection closed, restarted advertising\r\n");
+      //app_log("Connection closed, restarted advertising\r\n");
       break;
 
     default:
