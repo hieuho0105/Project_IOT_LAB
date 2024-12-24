@@ -13,7 +13,7 @@ void fill_adv_packet(CustomAdv_t *pData, uint8_t flags, uint16_t companyID, uint
     pData->val_flags = flags;
 
     // Manufacturer-specific data
-    pData->len_manuf = 7; // 6 bytes payload
+    pData->len_manuf = 7; // 1+2+4 bytes for type, company ID and the payload
     pData->type_manuf = 0xFF;
     pData->company_LO = companyID & 0xFF;
     pData->company_HI = (companyID >> 8) & 0xFF;

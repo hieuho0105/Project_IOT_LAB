@@ -41,9 +41,10 @@
 /******************************************************************************/
 extern uint8_t rh_byte1, rh_byte2, temp_byte1, temp_byte2;
 extern uint16_t adv_period;
+
 CustomAdv_t sData; // Our custom advertising data stored here
-static uint16_t temperature;
-static uint16_t humidity;
+uint16_t temperature;
+uint16_t humidity;
 /******************************************************************************/
 /***************************  LOCAL VARIABLES   ******************************/
 /******************************************************************************/
@@ -63,7 +64,7 @@ void adv_update_timer_cb(app_timer_t *timer, void *data)
   //You can update other data in this void
   temperature = (temp_byte1 * 10) + temp_byte2; // Ví dụ: 28.8 -> 0288
   humidity = (rh_byte1 * 10) + rh_byte2;     // Ví dụ: 80.1 -> 0801
-  // Log thông tin
+
   //app_log("Updating advertisement: Temp = %d.%1d, Hum = %d.%1d\r\n",
   //        temp_byte1, temp_byte2, rh_byte1, rh_byte2);
 
@@ -96,7 +97,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
 
   switch (SL_BT_MSG_ID(evt->header)) {
     case sl_bt_evt_system_boot_id:
-      app_log("System booted\r\n");
+      //app_log("System booted\r\n");
 
       // Tạo handle quảng bá
       sc = sl_bt_advertiser_create_set(&advertising_set_handle);
@@ -105,8 +106,8 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
       // Thiết lập interval quảng bá
       sc = sl_bt_advertiser_set_timing(
           advertising_set_handle,
-          adv_period*1.6, // Min interval (1000 ms)
-          adv_period*1.6, // Max interval (1000 ms)
+          adv_period * 1.6, // Min interval (1000 ms)
+          adv_period * 1.6, // Max interval (1000 ms)
           0,   // Thời gian quảng bá (0 = vô hạn)
           0);  // Số sự kiện quảng bá (0 = vô hạn)
       app_assert_status(sc);
